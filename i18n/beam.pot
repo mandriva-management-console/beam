@@ -1,0 +1,255 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-11 14:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../beam_pages.py:452
+#, python-format
+msgid "%d. Partition Table"
+msgstr ""
+
+#: ../beam_pages.py:487
+#, python-format
+msgid "%d. Partition type %d (%s)"
+msgstr ""
+
+#: ../beam_pages.py:582
+#, python-format
+msgid "%d. Partition « %s »: %s (%s)"
+msgstr ""
+
+#: ../beam_pages.py:704
+#, python-format
+msgid "%s %s"
+msgstr ""
+
+#: ../beam_pages.py:468
+#, python-format
+msgid "<b><u>%d</u></b>. Partition #%d: type %s (%s)"
+msgstr ""
+
+#: ../beam_pages.py:442
+#, python-format
+msgid "<b><u>%d</u></b>. Partition Table"
+msgstr ""
+
+#: ../beam_pages.py:565
+#, python-format
+msgid "<b><u>%d</u></b>. Partition « %s »: %s (%s)"
+msgstr ""
+
+#: ../beam_pages.py:68
+msgid "<b><u>B</u></b>ackup"
+msgstr ""
+
+#: ../beam_pages.py:224
+msgid "<b><u>C</u></b>ancel"
+msgstr ""
+
+#: ../beam_pages.py:352
+msgid "<b><u>G</u></b>o"
+msgstr ""
+
+#: ../beam_pages.py:943
+msgid "<b><u>L</u></b>ocal"
+msgstr ""
+
+#: ../beam_pages.py:646 ../beam_pages.py:749 ../beam_pages.py:1015
+#: ../beam_pages.py:1113
+msgid "<b><u>N</u></b>ext"
+msgstr ""
+
+#: ../beam_pages.py:351 ../beam_pages.py:645 ../beam_pages.py:748
+#: ../beam_pages.py:1014 ../beam_pages.py:1112
+msgid "<b><u>P</u></b>revious"
+msgstr ""
+
+#: ../beam_pages.py:225
+msgid "<b><u>Q</u></b>uit"
+msgstr ""
+
+#: ../beam_pages.py:69
+msgid "<b><u>R</u></b>estore"
+msgstr ""
+
+#: ../beam_pages.py:121
+msgid "Averate rate:"
+msgstr ""
+
+#: ../beam_pages.py:73
+msgid "B"
+msgstr ""
+
+#: ../beam_text.py:38
+msgid "Backup in progress"
+msgstr ""
+
+#: ../beam_text.py:34
+msgid "Backup stage 1/3: what you want to save"
+msgstr ""
+
+#: ../beam_text.py:35
+msgid "Backup stage 2/3: where you want to save"
+msgstr ""
+
+#: ../beam_text.py:36
+msgid "Backup stage 3/3: identification"
+msgstr ""
+
+#: ../beam_text.py:37
+msgid "Backup summary"
+msgstr ""
+
+#: ../beam_pages.py:231
+msgid "C"
+msgstr ""
+
+#: ../beam_pages.py:1091
+msgid "Click here to choose folder where the image is stored"
+msgstr ""
+
+#: ../beam_pages.py:1072 ../beam_pages.py:1089
+msgid "Click here to choose folder where the image will be written"
+msgstr ""
+
+#: ../beam_pages.py:80
+msgid "D"
+msgstr ""
+
+#: ../beam_pages.py:697
+msgid "Description:"
+msgstr ""
+
+#: ../beam_pages.py:120
+msgid "Destination directory:"
+msgstr ""
+
+#: ../beam_pages.py:828 ../beam_pages.py:860
+msgid "Directory"
+msgstr ""
+
+#: ../beam_pages.py:510
+#, python-format
+msgid "Disk %d: Available partitions"
+msgstr ""
+
+#: ../beam_pages.py:122
+msgid "Elapsed time:"
+msgstr ""
+
+#: ../beam_pages.py:365
+msgid "G"
+msgstr ""
+
+#: ../beam_pages.py:829 ../beam_pages.py:861
+msgid "Image"
+msgstr ""
+
+#: ../beam_pages.py:708
+#, python-format
+msgid "Image of %s on %s"
+msgstr ""
+
+#: ../beam_pages.py:252
+#, python-format
+msgid ""
+"Image « <b><u>%s</u></b> »\n"
+"stored in <b>%s</b> "
+msgstr ""
+
+#: ../beam_pages.py:951
+msgid "L"
+msgstr ""
+
+#: ../beam_pages.py:659 ../beam_pages.py:762 ../beam_pages.py:1028
+#: ../beam_pages.py:1126
+msgid "N"
+msgstr ""
+
+#: ../beam_pages.py:936
+msgid "NFS"
+msgstr ""
+
+#: ../beam_pages.py:696
+msgid "Name:"
+msgstr ""
+
+#: ../beam_text.py:46
+msgid ""
+"On the page you will be able to select what you want to do, i.e. either do a "
+"backup of some of your partitions, or restore a backup.\n"
+"\n"
+"click on « Backup » to make an image.\n"
+"click on « Restore » to restore an image."
+msgstr ""
+
+#: ../beam_pages.py:358 ../beam_pages.py:652 ../beam_pages.py:755
+#: ../beam_pages.py:1021 ../beam_pages.py:1119
+msgid "P"
+msgstr ""
+
+#: ../beam_pages.py:827
+msgid "Partition"
+msgstr ""
+
+#: ../beam_pages.py:119
+msgid "Partition currently backuped:"
+msgstr ""
+
+#: ../beam_pages.py:598
+#, python-format
+msgid "Partition « %s »: %s (%s)"
+msgstr ""
+
+#: ../beam_pages.py:238
+msgid "Q"
+msgstr ""
+
+#: ../beam_pages.py:123
+msgid "Remaining time:"
+msgstr ""
+
+#: ../beam_text.py:42
+msgid "Restore in progress"
+msgstr ""
+
+#: ../beam_text.py:39
+msgid "Restore stage 1/2: which image to restore"
+msgstr ""
+
+#: ../beam_text.py:40
+msgid "Restore stage 2/2: which parts to restore"
+msgstr ""
+
+#: ../beam_text.py:41
+msgid "Restore summary"
+msgstr ""
+
+#: ../beam_pages.py:858
+msgid "Server"
+msgstr ""
+
+#: ../beam_pages.py:859
+msgid "Share"
+msgstr ""
+
+#: ../beam_pages.py:826
+msgid "Volume"
+msgstr ""
+
+#: ../beam_text.py:33
+msgid "Welcome to BeaM"
+msgstr ""

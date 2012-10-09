@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<article class="whitepaper" lang="fr">
+  <title>Beam - Spécifications</title>
+
+  <articleinfo>
+    <author>
+      <firstname>Nicolas</firstname>
+
+      <surname>Rueff</surname>
+
+      <email>nicolas.rueff@linbox.com</email>
+    </author>
+
+    <affiliation>
+      <orgname>Linbox / Free &amp; ALter Soft</orgname>
+
+      <address>152 rue de Grigy - Metz F-57230</address>
+    </affiliation>
+
+    <copyright>
+      <year>2007 Nicolas Rueff - Linbox F&amp;AS</year>
+    </copyright>
+
+    <legalnotice>
+      <para></para>
+    </legalnotice>
+
+    <revhistory>
+      <revision revisionflag="off">
+        <revnumber>1.1</revnumber>
+
+        <date>2007-10-03</date>
+
+        <authorinitials>NR</authorinitials>
+
+        <revdescription>
+          <para>Ajout de correctifs de YD</para>
+        </revdescription>
+      </revision>
+
+      <revision revisionflag="off">
+        <revnumber>1.0</revnumber>
+
+        <date>2007-09-24</date>
+
+        <authorinitials>NR</authorinitials>
+
+        <revdescription>
+          <para>Première version</para>
+        </revdescription>
+      </revision>
+    </revhistory>
+
+    <abstract>
+      <para></para>
+    </abstract>
+  </articleinfo>
+
+  <section>
+    <title>But recherché</title>
+
+    <para>Le but recherché avec BeaM est de parvenir à proposer à un
+    utilisateur lambda - i.e. n'ayant aucune compétence en informatique - un
+    moyen simple et rapide de mettre en oeuvre les binaires de sauvegarde LRS.
+    Ce docuement fait également office de specs pour le pilotage des binaires
+    LRS.</para>
+  </section>
+
+  <section>
+    <title>Cahier des charges</title>
+
+    <para>Succintement, BeaM devra répondre aux problématiques
+    suivantes:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>embarquement et pilotage des binaires LRS,</para>
+      </listitem>
+
+      <listitem>
+        <para>interface "graphique" pilotage au clavier et/ou à la
+        souris,</para>
+      </listitem>
+
+      <listitem>
+        <para>utilisable depuis un initrd, un média de boot diskless, une
+        installation Linux standard,</para>
+      </listitem>
+
+      <listitem>
+        <para>possibilité de sauvegarder / restaurer à partir d'un emplacement
+        quelconque (répertoire local ou partage réseau),</para>
+      </listitem>
+
+      <listitem>
+        <para>thèmable,</para>
+      </listitem>
+
+      <listitem>
+        <para>internationalisé.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>De part sa dépendance des binaires LRS, il possédera également leurs
+    limitations en terme de système de fichier supporté, de déplacement /
+    aggrandissement de partition, etc ...</para>
+  </section>
+
+  <section>
+    <title>Base technologique</title>
+
+    <para>Les modules de sauvegarde système sont codés en C. Dans l'absolu,
+    ils ne devront pas être modifiés au cours de ce projet sauf grosse
+    lacune.</para>
+
+    <para>L'interface est développée en Python/GTK. GTK pour la portabilité du
+    toolkit, Python pour la maintenabilité.</para>
+
+    <para>La communication IHM/binaires se fait par connexion TCP (voir plus
+    bas).</para>
+  </section>
+
+  <section>
+    <title>Description sommaire du produit</title>
+
+    <para>Dans les grandes lignes, le but du produit est de créer la ligne de
+    commande adaptée pour les binaires LRS puis de piloter cette
+    commande.</para>
+
+    <para>Selon le contexte d'utilisation - sauvegarde, restauration -
+    l'application aura la charge de prévenir l'utilisateur de manoeuvre
+    potentiellement dangereuses:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>sauvegarde / restauration d'une partition montée,</para>
+      </listitem>
+
+      <listitem>
+        <para>sauvegarde d'un partition sans qu'il n'y ait assez de place sur
+        le média de sauvegarde,</para>
+      </listitem>
+
+      <listitem>
+        <para>restauration de données ne pouvant être contenue pr le disque
+        cible (partition trop grande, etc ...).</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Dans une moindre mesure, le produit aura également la charge de
+    monter / démonter les médias / partages de stockage des images.</para>
+
+    <para>Le produit prendra la forme d'un assistant découpé en trois grand
+    scénarii:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Sauvegarde</term>
+
+        <listitem>
+          <para>identificaton des données à sauvegarder, de l'emplacement où
+          les stocker, et pilotage de la sauvegarde,</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Restauration</term>
+
+        <listitem>
+          <para>Identification des données à restaurer et pilotage de la
+          restauration,</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Configuration (facultatif)</term>
+
+        <listitem>
+          <para>Possibilité de configurer le réseau de la machine
+          locale.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>L'assistant possédera trois modes de fonctionnements: standard,
+    avancé, dev/debug (voir plus bas).</para>
+
+    <section>
+      <title>Découpage de l'interface</title>
+
+      <para>De manière générale, l'interface prendra la forme suivante:</para>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="wizardskel.png" />
+        </imageobject>
+      </mediaobject>
+
+      <para>Les contrôles de l'assistant permettent d'avancer (uniquement si
+      toutes les infos requises sont renseignées), revenir en arrière (dans ce
+      cas il conserve les informations précédemment renseignées). Toutes les
+      entrées sont internationnalisées. Au niveau du itre de la page, la norme
+      est "Opération (n/x): description". Par exemple "Sauvegarde (1/3): choix
+      des partitions à sauvegarder.</para>
+    </section>
+
+    <section>
+      <title>Premier scénario: sauvegarde</title>
+
+      <para>Le scéario de sauvegarde est un chemin linéaire permettant de
+      réaliser la sauvegarde d'une ou plusieurs partitions. L'assistant
+      permettra de naviguer entre les pages suivantes:</para>
+
+      <table>
+        <title></title>
+
+        <tgroup cols="4">
+          <thead>
+            <row>
+              <entry align="center">#</entry>
+
+              <entry align="center">Titre</entry>
+
+              <entry align="center">Pré-affichage</entry>
+
+              <entry align="center">Informations obtenues</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>1</entry>
+
+              <entry>Backup (1/3): what you want to save</entry>
+
+              <entry>scanner la machine à la recherche de partitions locales
+              supportées <footnote>
+                  <para>e[2|3]fs, (v)fat, jfs, lvm[1|2], lvmreiserfs, ntfs,
+                  xfs. </para>
+                </footnote></entry>
+
+              <entry>Liste des partitions à sauvegarder</entry>
+            </row>
+
+            <row>
+              <entry>2</entry>
+
+              <entry>Backup (2/3): where you want to save</entry>
+
+              <entry>scanner la machine et le réseau à la recherche de
+              partages accessibles en écriture</entry>
+
+              <entry>URI de sauvegarde (file://, nfs://, smb:// ...)</entry>
+            </row>
+
+            <row>
+              <entry>3</entry>
+
+              <entry>Backup (3/3): identification</entry>
+
+              <entry>/</entry>
+
+              <entry>titre, description de l'image</entry>
+            </row>
+
+            <row>
+              <entry>4</entry>
+
+              <entry>Backup summary</entry>
+
+              <entry>/</entry>
+
+              <entry>/</entry>
+            </row>
+
+            <row>
+              <entry>5</entry>
+
+              <entry>Backup in progress</entry>
+
+              <entry>Lancement de la commande de sauvegarde</entry>
+
+              <entry>/</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section>
+      <title>Second scénario: restauration</title>
+
+      <para>Le scéario de restauration est un chemin linéaire permettant de
+      réaliser la restauration d'une image. L'assistant permettra de naviguer
+      entre les pages suivantes:</para>
+
+      <table>
+        <title></title>
+
+        <tgroup cols="4">
+          <thead>
+            <row>
+              <entry align="center">#</entry>
+
+              <entry align="center">Titre</entry>
+
+              <entry align="center">Pré-affichage</entry>
+
+              <entry align="center">Informations obtenues</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>1</entry>
+
+              <entry>Restore (1/2): which image to restore</entry>
+
+              <entry>scanner la machine et le réseau à la recherche de
+              partages accessibles en écriture possédant des images</entry>
+
+              <entry>Image à utiliser</entry>
+            </row>
+
+            <row>
+              <entry>2</entry>
+
+              <entry>Restore (2/2): which parts to restore</entry>
+
+              <entry>scanner l'image sélectionnée</entry>
+
+              <entry>Partition(s) à restaurer</entry>
+            </row>
+
+            <row>
+              <entry>4</entry>
+
+              <entry>Restore summary</entry>
+
+              <entry>/</entry>
+
+              <entry>/</entry>
+            </row>
+
+            <row>
+              <entry>5</entry>
+
+              <entry>Restore progress</entry>
+
+              <entry>Lancement de la commande de restauration</entry>
+
+              <entry>/</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section>
+      <title>Troisième scénario: configuration</title>
+
+      <para>Le scéario de configuration est un ensemble de pages permettant de
+      configurer les paramètres suivants:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>configuration réseau,</para>
+        </listitem>
+
+        <listitem>
+          <para>montage / démontage de système de fichier
+          (local/distant).</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+
+  <section>
+    <title>Pilotage des binaires LRS</title>
+
+    <section>
+      <title>Présentation des binaires</title>
+
+      <para>Les binaires LRS peuvent être classés en 4 groupes:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>le binaire de restauration (<emphasis
+          role="bold">autorestore</emphasis>), dont le travail consiste
+          exclusivement à décompresser et écrire des octets où on lui
+          dit,</para>
+        </listitem>
+
+        <listitem>
+          <para>le binaire de sauvegarde (<emphasis
+          role="bold">autosave</emphasis>), dont le travail consiste
+          exclusivement à lancer à la chaîne les différents binaires de
+          sauvegarde dédiée,</para>
+        </listitem>
+
+        <listitem>
+          <para>les binaires de sauvegarde dédiée (<emphasis
+          role="bold">image_*</emphasis>), analysant la partition et en
+          réalisant la compression / sauvegarde si elle est supportée,</para>
+        </listitem>
+
+        <listitem>
+          <para>la <emphasis role="bold">liblrs</emphasis> rassemblant
+          quelques fonctions communes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Principe de fonctionnement d'une sauvegarde</title>
+
+      <para>Le pilotage des binaires de sauvegarde du LRS est simple, bien
+      qu'un peu contraignante au niveau de la mise en place de l'environnement
+      requis.</para>
+
+      <para>Avant tout, s'assurer que le ld.so.conf contient bien le chemin
+      vers la liblrs. Puis créer le futur environnement de stockage de l'image
+      (ici le répertoire de base sera considéré comme étant <emphasis
+      role="bold">/home/LRS</emphasis>, l'image sera enregistrée dans le
+      répertoire <emphasis role="bold">Image</emphasis>):</para>
+
+      <screen>/home/LRS/Image
+|-- misc           : contiendra des fichiers requis pour mener la sauvegarde
+|-- restore        : sera utilisé pour stocker les logs de restauration
+`-- save           : contiendra l'image LRS au sens "Serveur LRS"</screen>
+
+      <para>Le binaire de sauvegarde est maintenant prêt à être utilisé. La
+      syntaxe est la suivante:</para>
+
+      <screen>autosave --nolrs --info &lt;chemin-vers-rep-misc&gt; --save &lt;chemin-vers-rep-save&gt; --bin &lt;chemin-vers-binaires&gt;</screen>
+
+      <para>Soit dans notre cas:</para>
+
+      <screen>autosave --nolrs --info /home/LRS/Image/misc --save /home/LRS/Image/test --bin /chemin/vers/binaires</screen>
+
+      <para>Actuellement le seul fichier utilisé par le bianire de sauvegarde
+      de « misc » est le fichier "<emphasis role="bold">exclude</emphasis>",
+      permettant au binaire de connaître la liste des partitions à ne pas
+      sauvegarder. Voir plus bas pour les specs de ce fichier.</para>
+    </section>
+
+    <section>
+      <title>Principe de fonctionnement d'une restauration</title>
+
+      <para>Le principe est exactement le même que pour la sauvegarde: mêmes
+      arguments, même environnement mis en place. Sauf au niveau de la partie
+      d'exclusion des partitions à restaurer: le fichier est cette fois «
+      <emphasis role="bold">conf.txt</emphasis> » (en gros un dérivé d'un
+      fichier Grub). Voir plus bas pour les specs. Le fichier se situe dans le
+      répertoire « <emphasis role="bold">save</emphasis> ».</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Protocole de communication IHM/binaires</title>
+
+    <para>Les binaires et l'IHM s'échanget des informations via protocole
+    PMRPC (Poorman's RPC, © Ludo).</para>
+
+    <section>
+      <title>Specs du PMRPC</title>
+
+      <para>Il s'agit d'un protocole "hand-made", basé sur l'échange de
+      tockens.</para>
+
+      <para>Pour simplifier:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>La GUI écoute (dans notre cas: sur 127.0.0.1 port 7001 en
+          TCP),</para>
+        </listitem>
+
+        <listitem>
+          <para>le CLI émet un token (i.e. un identifint de commande et des
+          arguments de commande),</para>
+        </listitem>
+
+        <listitem>
+          <para>le GUI émet un ACK.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>D'un point de vue réseau, un tocken est constitué de:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>d'un UI32 (little endian) donnat la longueur du tocken,</para>
+        </listitem>
+
+        <listitem>
+          <para>d'une chaîne de caractère le longueur précédemment
+          annoncée.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Bref, encodage "à la Pascal".</para>
+
+      <para>De même, une commande est constituée:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>d'un tocken (l'identifiant de la commande),</para>
+        </listitem>
+
+        <listitem>
+          <para>d'un ui32 (little endian) donnant le nombre d'arguments de la
+          commande,</para>
+        </listitem>
+
+        <listitem>
+          <para>d'autant de tockens que d'arguments annoncé.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Exemple d'échange du point de vue de l'interface (un tocken est
+      symbolisé par ||):</para>
+
+      <screen>Réception: |init_backup|
+Réception: |/dev/hda1|/home/LRS/noiraude_2007-07-05_18:19:44/P1|192712|84706|/home/nicolas/Devs/GhostKiller/lrs-bin/revobin/image_e2fs|
+Envoi    : |OK|
+Réception: |refresh_backup_progress|
+Réception: |0|
+Envoi    : |OK|
+Réception: |refresh_backup_progress|
+Réception: |818176|
+Réception: |close|
+Envoi    : |OK|</screen>
+    </section>
+
+    <section>
+      <title>Commandes disponibles</title>
+
+      <section>
+        <title>Coté client</title>
+
+        <para>(Note: les arguments non documentés ne sont pas utilisés dans le
+        cas qui nous intéresse ici).</para>
+
+        <variablelist>
+          <varlistentry>
+            <term>init_backup</term>
+
+            <listitem>
+              <para>Le binaire signale le début d'une sauvegarde à
+              l'interface. Les arguments passés sont, dans l'ordre:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>1: la source, i.e. la partition (au sens Linux:
+                  /dev/hda4, /dev/sdc1, etc ...),</para>
+                </listitem>
+
+                <listitem>
+                  <para>2: la cible, i.e. le fichier (et le répertoire)
+                  contenant la sauvegarde (/home/LRS/P1,
+                  /net/LRS/tftpboot/imgs/test/P3, etc ...),</para>
+                </listitem>
+
+                <listitem>
+                  <para>3: la taille totale de la partition en blocs de 512
+                  o.,</para>
+                </listitem>
+
+                <listitem>
+                  <para>4: la taille utilisée en blocs de 512 o.,</para>
+                </listitem>
+
+                <listitem>
+                  <para>5: le nom du binaire utilisé pour réaliser la
+                  sauvegarde.</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>init_restore</term>
+
+            <listitem>
+              <para>Le binaire signale le début d'une restauration à
+              l'interface. Les arguments passés sont, dans l'ordre:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>1: la source, i.e. le fichier (et le répertoire)
+                  contenant la sauvegarde (/home/LRS/P1,
+                  /net/LRS/tftpboot/imgs/test/P3, etc ...),</para>
+                </listitem>
+
+                <listitem>
+                  <para>2: la cible, i.e. la partition (au sens Linux:
+                  /dev/hda4, /dev/sdc1, etc ...),</para>
+                </listitem>
+
+                <listitem>
+                  <para>4: la quantité totale de données à restaurer en blocs
+                  de 512 o .</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>refresh_file</term>
+
+            <listitem>
+              <para>Le binaire indique à l'interface qu'il change de fichier
+              de sauvegarde. Les arguments:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>1: la source,</para>
+                </listitem>
+
+                <listitem>
+                  <para>4: la cible,</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>refresh_backup_progress</term>
+
+            <listitem>
+              <para>Le binaire indique à l'interface sa progression. Les
+              arguments:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>La progression (en octets depuis le début de
+                  l'image).</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>close</term>
+
+            <listitem>
+              <para>Le binaire indique à l'interface qu'il va terminer son
+              exécution (et la communication par la même occasion). Pas
+              d'arguments.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>misc_error</term>
+
+            <listitem>
+              <para>Le binaire signale une erreur à l'interface.. Deux
+              arguments:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>le titre de l'erreur,</para>
+                </listitem>
+
+                <listitem>
+                  <para>la description de l'erreur.</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>backup_write_error</term>
+
+            <listitem>
+              <para>Le binaire indique à l'interface une erreur d'écriture (à
+              la sauvegarde). Pas d'arguments.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>zlib_error</term>
+
+            <listitem>
+              <para>Le binaire indique à l'interface une erreur de zlib (à la
+              restauration). Argument:</para>
+
+              <itemizedlist>
+                <listitem>
+                  <para>Le message d'erreur de la ZLib.</para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </section>
+
+      <section>
+        <title>Coté serveur</title>
+
+        <para>Tout tocken sans argument peut faire office d'ACK. Dans la
+        pratique, par convention on utilise le tocken "OK".</para>
+      </section>
+    </section>
+  </section>
+
+  <section>
+    <title>Système d'exclusion de partitions (en sauvegarde)</title>
+
+    <para>Le binaire de sauvegarde LRS se base sur le contenu d'un fichier
+    nommé exclude pour connaitre la liste des partitions à ignorer. Il s'agit
+    d'un fichier contenant des patternes d'exclusion, une par ligne.</para>
+
+    <para>Pour exclure de la sauvegarde la partition P du disque D, la ligne
+    correspondante est: <emphasis role="bold">D:P</emphasis> .</para>
+
+    <para>Pour exclure de la sauvegarde l'intégralité du disque D, la ligne
+    correspondante est: <emphasis role="bold">D:0</emphasis> .</para>
+  </section>
+
+  <section>
+    <title>Fichier GRUB de description d'image</title>
+
+    <para>Historiquement la restauration d'un image LRS utilisait un GrUB
+    modifié qui se chargeait seul du téléchargement des secteurs par TFTP.
+    Pour les specs du format, voir chez Grub. Linbox s'est contenté d'ajouter
+    quelques commandes:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Restauration d'une partition:</para>
+
+        <para>la ligne de configuration est:</para>
+
+        <screen>partcopy &lt;PART&gt; &lt;START&gt; (nd)PATH/&lt;PREFIX&gt; [TYPE]</screen>
+
+        <para>avec:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>PART: une partition au sens GrUB (<emphasis
+            role="bold">(hd0,0)</emphasis> par ex.)</para>
+          </listitem>
+
+          <listitem>
+            <para>START: le secteur (512 o) de début,</para>
+          </listitem>
+
+          <listitem>
+            <para>PREFIX: le préfixe des fichiers contenant l'image (par ex;
+            <emphasis role="bold">P1</emphasis>)</para>
+          </listitem>
+
+          <listitem>
+            <para>TYPE: le type PC/DOS de la partition (par ex; <emphasis
+            role="bold">83</emphasis> pour Linux)</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+
+      <listitem>
+        <para>Restauration d'une table de partition:</para>
+
+        <para>la ligne de configuration est:</para>
+
+        <screen>ptabs &lt;DISK&gt; (nd)PATH/&lt;NAME&gt;</screen>
+
+        <para>avec:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>DISK: un disque au sens GrUB (<emphasis
+            role="bold">(hd0)</emphasis> par ex.)</para>
+          </listitem>
+
+          <listitem>
+            <para>NAME: le nom du fichier contenant la table de partition (par
+            ex; <emphasis role="bold">PTABS</emphasis>)</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+    </itemizedlist>
+
+    <para>La convention pour ne pas restaurer une partition ou une table de
+    partition est de commenter la ligne cortrespondante à l'aide du caractère
+    <emphasis role="bold">#</emphasis>.</para>
+  </section>
+</article>
